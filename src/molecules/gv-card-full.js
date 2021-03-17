@@ -22,6 +22,7 @@ import '../molecules/gv-metrics';
 import '../molecules/gv-rating';
 import '../atoms/gv-state';
 import '../atoms/gv-tag';
+import '../atoms/gv-quality-gauge';
 import { truncate } from '../lib/utils';
 import { i18n } from '../lib/i18n';
 import { ItemResource } from '../mixins/item-resource';
@@ -194,7 +195,7 @@ export class GvCardFull extends ItemResource(LitElement) {
       </div>
       <span class="${classMap({ skeleton: this._skeleton })}">
         <div class="infos">${this._renderMetricsWithRating()}</div>
-
+		${this._renderQualityGauge()}
         <div class="labels">${this._renderLabels(true)}</div>
       </span>
     </div>`;
