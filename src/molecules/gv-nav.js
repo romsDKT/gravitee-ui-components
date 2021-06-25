@@ -16,6 +16,7 @@
 import { LitElement, html, css } from 'lit-element';
 import { repeat } from 'lit-html/directives/repeat';
 import '../atoms/gv-link';
+import '../organisms/gv-vertical-menu'
 import { until } from 'lit-html/directives/until';
 import { isSameRoutes } from '../lib/utils';
 import { dispatchCustomEvent } from '../lib/events';
@@ -48,7 +49,15 @@ export class GvNav extends LitElement {
       css`
         nav {
           position: relative;
+          display: flex;
           transition: all 150ms ease-in-out;
+        }
+
+        .container {
+        display: flex;
+        flex-direction: column;
+        width: fit-content;
+        margin: 10px;
         }
 
         gv-link {
@@ -76,6 +85,10 @@ export class GvNav extends LitElement {
           left: 0;
           transition: transform 250ms ease-in-out, width 250ms;
         }
+
+        .notSelected {
+          display: none !important;
+        }
       `,
     ];
   }
@@ -84,6 +97,7 @@ export class GvNav extends LitElement {
     event.stopPropagation();
     const { detail } = event;
     const { title, target } = detail;
+    // console.log("title," {title})
     if (target === '_blank') {
       dispatchCustomEvent(this, 'click', detail);
     } else {
@@ -91,6 +105,8 @@ export class GvNav extends LitElement {
         this._isLocked = true;
         let nextIndex = 0;
         this._routes.forEach((route, index) => {
+          console.log('route -> ', route, 'index -> ', index)
+          console.log("route.title ->", route.title, 'title', title)
           if (route.title === title) {
             route.active = true;
             nextIndex = index;
@@ -103,6 +119,7 @@ export class GvNav extends LitElement {
         const activeLink = this.shadowRoot.querySelector('gv-link[active]');
         const nextLink = this.shadowRoot.querySelectorAll('gv-link')[nextIndex];
         if (activeLink) {
+          console.log('activeLink , ', activeLink)
           const shadowLink = activeLink.cloneNode(true);
           const { height, width } = activeLink.getBoundingClientRect();
 
@@ -123,6 +140,7 @@ export class GvNav extends LitElement {
 
           setTimeout(() => {
             nextLink.setAttribute('active', true);
+            console.log("'nextLink '", nextLink)
             this.shadowRoot.querySelector('nav').removeChild(shadowLink);
             this._isLocked = false;
             dispatchCustomEvent(this, 'click', detail);
@@ -140,6 +158,9 @@ export class GvNav extends LitElement {
     super();
     /** @protected */
     this._routes = [];
+    this.navRoutes = [];
+    this.routesInGroups = [];
+    this.allRoutes = [...this.navRoutes, ...this.routesInGroups];
     this.vertical = false;
   }
 
@@ -169,7 +190,7 @@ export class GvNav extends LitElement {
         ></gv-link>`;
       })
       .catch(() => {
-        delete this._routes[index];
+        delete this.allRoutes[index];
       });
   }
 
@@ -179,18 +200,57 @@ export class GvNav extends LitElement {
     }
   }
 
+  getRouteGroups() {
+    const groups = [];
+    const regex = /^\/(?<groupToCreate>[a-zA-Z0-9]+)\/.*/g
+    this._routes.forEach(route => {
+      if (route.path.match(regex)) {
+        const { groups: { groupToCreate } } = /^\/(?<groupToCreate>[a-zA-Z0-9]+)\/.*/g.exec(route.path);
+        if (!this.routesInGroups.includes(route)) {
+          this.routesInGroups.push(route)
+        }
+        if (!groups.includes(groupToCreate)) {
+          groups.push(groupToCreate)
+        }
+      } else {
+        if (!this.navRoutes.includes(route))
+          this.navRoutes.push(route)
+      }
+    })
+    return groups;
+  }
+
   render() {
-    if (this._routes) {
-      return html`<nav class="${classMap({ compact: this._compact, vertical: this.vertical })}">
+    const groups = this.getRouteGroups();
+    const itemsTemplates = [];
+    if (groups) {
+      for (let i = 0; i < groups.length; i++) {
+        itemsTemplates.push(html`
+        <div class='container'> ${groups[i]}
         ${repeat(
-          this._routes,
+          this.routesInGroups.filter(route => route.path.includes(groups[i])),
           (route) => route,
-          (route, index) => until(this._getLink(route, index), html`<gv-link skeleton .vertical="${this.vertical}"></gv-link>`),
+          (route, index) => until(this._getLink(route, index), html`<gv-link class="${this.notSelected}" skeleton .vertical="${this.vertical}"></gv-link>`),
         )}
-      </nav>`;
+        </div>
+        `)
+      }
     }
-    return html``;
+    if (this._routes) {
+      itemsTemplates.push(html`
+        ${repeat(
+        this.navRoutes,
+        (route) => route,
+        (route, index) => until(this._getLink(route, index), html`<gv-link skeleton .vertical="${this.vertical}"></gv-link>`),
+      )}
+`)
+    }
+
+    return html`<nav class="${classMap({ compact: this._compact, vertical: this.vertical })}">
+    ${itemsTemplates}
+    </nav>`;
   }
 }
 
 window.customElements.define('gv-nav', GvNav);
+
