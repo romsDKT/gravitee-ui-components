@@ -30,9 +30,14 @@ const conf = {
 };
 
 const routes = [
-  { path: '', title: 'Dashboard' },
-  { path: '', title: 'Catalogue', active: true },
-  { path: '', title: 'Mes applications' },
+  { path: '', title: 'Categories', icon: 'layout:layout-arrange' },
+  { path: '', title: 'Featured', active: true, icon: 'home:flower#2' },
+  { path: '/Support/createtoto', title: 'toto',  icon: 'appliances:fan' },
+  { path: '/Support/hellodear', title: 'hello',  icon: 'home:flower#1'},
+  { path: '/Support/titiismyfriend', title: 'Contact' },
+  { path: '/Home/', title: 'homepage'},
+  { path: '/Home/', title: 'here' },
+
 ];
 
 export const basics = makeStory(conf, {
