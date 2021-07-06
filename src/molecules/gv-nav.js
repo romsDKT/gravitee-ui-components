@@ -16,7 +16,6 @@
 import { LitElement, html, css } from 'lit-element';
 import { repeat } from 'lit-html/directives/repeat';
 import '../atoms/gv-link';
-import '../organisms/gv-vertical-menu'
 import { until } from 'lit-html/directives/until';
 import { isSameRoutes } from '../lib/utils';
 import { dispatchCustomEvent } from '../lib/events';
@@ -29,7 +28,6 @@ import { classMap } from 'lit-html/directives/class-map';
  * * has @theme facet
  *
  * @fires gv-nav:click - Custom event when nav item is clicked
- *
  * @attr {Array<{active: Boolean, icon: String, path: String, title: Promise<String>, target: String}>} routes - definition of routes
  */
 export class GvNav extends LitElement {
@@ -47,6 +45,13 @@ export class GvNav extends LitElement {
     return [
       // language=CSS
       css`
+        :host {
+          --pv: var(--gv-link-a--pv, 15px);
+          --ph: var(--gv-link-a--ph, 15px);
+          --link-active--c: var(--gv-link-active--c, var(--gv-theme-font-color-light, #ffffff));
+          --link--c: var(--gv-link--c, var(--gv-theme-font-color-dark, #262626));
+        }
+
         nav {
           position: relative;
           display: flex;
@@ -54,10 +59,11 @@ export class GvNav extends LitElement {
         }
 
         .container {
-        display: flex;
-        flex-direction: column;
-        width: fit-content;
-        margin: 10px;
+          padding: var(--pv) var(--ph);
+          display: flex;
+          flex-direction: column;
+          width: fit-content;
+          margin: 10px;
         }
 
         gv-link {
@@ -77,7 +83,7 @@ export class GvNav extends LitElement {
           --gv-link-a--ph: 10px;
         }
 
-        #shadowLink {
+        #shadowLink .shadowLink {
           position: absolute;
           display: inline-flex;
           opacity: 0.5;
@@ -86,9 +92,35 @@ export class GvNav extends LitElement {
           transition: transform 250ms ease-in-out, width 250ms;
         }
 
+        .activeMenu {
+          color: var(--link-active--c);
+          background-color: var(--gv-link-active--bgc, var(--gv-theme-color-dark, #28444f));
+          border-color: var(--gv-link-active--bdc, none);
+        }
+
+        .activeMenu > gv-link {
+          // z-index: 2;
+          color: white;
+          background-color: red;
+        }
+
+        .activeMenu > gv-link {
+          z-index: 2;
+          color: white;
+          background-color: red;
+        }
+
         .notSelected {
           display: none !important;
         }
+
+        div.close > gv-link {
+          display: none;
+        }
+
+        // :active {
+        //   background-color : yellow;
+        // }
       `,
     ];
   }
@@ -97,62 +129,73 @@ export class GvNav extends LitElement {
     event.stopPropagation();
     const { detail } = event;
     const { title, target } = detail;
-    // console.log("title," {title})
     if (target === '_blank') {
       dispatchCustomEvent(this, 'click', detail);
     } else {
       if (!this._isLocked) {
         this._isLocked = true;
-        let nextIndex = 0;
+        // let nextIndex = 0;
         this._routes.forEach((route, index) => {
-          console.log('route -> ', route, 'index -> ', index)
-          console.log("route.title ->", route.title, 'title', title)
           if (route.title === title) {
             route.active = true;
-            nextIndex = index;
+            // console.log('route',route);
+            // route.classList.add('active')
+            // nextIndex = index;
           } else {
             delete route.active;
           }
           return route;
         });
 
-        const activeLink = this.shadowRoot.querySelector('gv-link[active]');
-        const nextLink = this.shadowRoot.querySelectorAll('gv-link')[nextIndex];
-        if (activeLink) {
-          console.log('activeLink , ', activeLink)
-          const shadowLink = activeLink.cloneNode(true);
-          const { height, width } = activeLink.getBoundingClientRect();
-
-          shadowLink.id = 'shadowLink';
-          shadowLink.style.top = `${activeLink.offsetTop}px`;
-          shadowLink.style.left = `${activeLink.offsetLeft}px`;
-          shadowLink.style.width = `${width}px`;
-          shadowLink.style.height = `${height}px`;
-
-          activeLink.removeAttribute('active');
-          activeLink.style.height = `${height}px`;
-
-          this.shadowRoot.querySelector('nav').prepend(shadowLink);
-          const left = nextLink.offsetLeft - activeLink.offsetLeft;
-          const top = nextLink.offsetTop - activeLink.offsetTop;
-
-          shadowLink.style.transform = `translate(${left}px,${top}px)`;
-
-          setTimeout(() => {
-            nextLink.setAttribute('active', true);
-            console.log("'nextLink '", nextLink)
-            this.shadowRoot.querySelector('nav').removeChild(shadowLink);
-            this._isLocked = false;
-            dispatchCustomEvent(this, 'click', detail);
-          }, 250);
+        const activeLink = this.shadowRoot.querySelector('[active]');
+        // console.log(activeLink)
+        if (activeLink.hasAttribute('active')) {
+          // console.log('toto');
+          activeLink.classList.add('active');
         } else {
-          nextLink.setAttribute('active', true);
-          this._isLocked = false;
-          dispatchCustomEvent(this, 'click', detail);
         }
+        // const activeMenu = this.shadowRoot.querySelector('div[active]');
+        // if (activeMenu) {
+        //   console.log("hello")
+        //   // const shadowMenu = activeMenu.clodeNode(true);
+        //   activeMenu.classList.add('activeMenu')
+        // } else {
+        // const nextLink = this.shadowRoot.querySelectorAll('gv-link')[nextIndex];
+
+        // if (activeLink) {
+        //   const shadowLink = activeLink.cloneNode(true);
+        //   const { height, width } = activeLink.getBoundingClientRect();
+
+        //   shadowLink.id = 'shadowLink';
+        //   shadowLink.style.top = `${activeLink.offsetTop}px`;
+        //   shadowLink.style.left = `${activeLink.offsetLeft}px`;
+        //   shadowLink.style.width = `${width}px`;
+        //   shadowLink.style.height = `${height}px`;
+
+        //   activeLink.removeAttribute('active');
+        //   activeLink.style.height = `${height}px`;
+
+        //   this.shadowRoot.querySelector('nav').prepend(shadowLink);
+        //   const left = nextLink.offsetLeft - activeLink.offsetLeft;
+        //   const top = nextLink.offsetTop - activeLink.offsetTop;
+
+        //   shadowLink.style.transform = `translate(${left}px,${top}px)`;
+
+        //   setTimeout(() => {
+        //     // nextLink.setAttribute('active', true);
+        //     this.shadowRoot.querySelector('nav').removeChild(shadowLink);
+        //     this._isLocked = false;
+        //     dispatchCustomEvent(this, 'click', detail);
+        //   }, 250);
+        // } else {
+        //   // nextLink.setAttribute('active', true);
+        //   this._isLocked = false;
+        //   dispatchCustomEvent(this, 'click', detail);
+        // }
       }
     }
   }
+  // }
 
   constructor() {
     super();
@@ -202,38 +245,57 @@ export class GvNav extends LitElement {
 
   getRouteGroups() {
     const groups = [];
-    const regex = /^\/(?<groupToCreate>[a-zA-Z0-9]+)\/.*/g
-    this._routes.forEach(route => {
-      if (route.path.match(regex)) {
-        const { groups: { groupToCreate } } = /^\/(?<groupToCreate>[a-zA-Z0-9]+)\/.*/g.exec(route.path);
+    const regex = /^\/(?<groupToCreate>[a-zA-Z0-9]+)\/.*/g;
+    this._routes.forEach((route) => {
+      if (route.title.toString().match(regex)) {
+        const {
+          groups: { groupToCreate },
+        } = /^\/(?<groupToCreate>[a-zA-Z0-9]+)\/.*/g.exec(route.title);
         if (!this.routesInGroups.includes(route)) {
-          this.routesInGroups.push(route)
+          this.routesInGroups.push(route);
         }
         if (!groups.includes(groupToCreate)) {
-          groups.push(groupToCreate)
+          groups.push(groupToCreate);
         }
       } else {
-        if (!this.navRoutes.includes(route))
-          this.navRoutes.push(route)
+        if (!this.navRoutes.includes(route)){ 
+          this.navRoutes.push(route);}
       }
-    })
+    });
     return groups;
   }
 
   render() {
     const groups = this.getRouteGroups();
     const itemsTemplates = [];
+    const handleClick = (event, id) => {
+      const divName = this.shadowRoot.getElementById(id);
+      if (!divName.hasAttribute('active')) {
+        divName.classList.remove('close');
+        divName.setAttribute('active', true);
+      } else {
+        divName.removeAttribute('active');
+        divName.classList.add('close');
+      }
+      this._onClick(event);
+    };
+
     if (groups) {
       for (let i = 0; i < groups.length; i++) {
         itemsTemplates.push(html`
-        <div class='container'> ${groups[i]}
-        ${repeat(
-          this.routesInGroups.filter(route => route.path.includes(groups[i])),
+          <div class="container close" id=${groups[i]} @click="${(event) => handleClick(event, groups[i])}">
+            <div> ${groups[i]}</div>
+            ${repeat(
+          this.routesInGroups.filter((route) => route.title.includes(groups[i])),
           (route) => route,
-          (route, index) => until(this._getLink(route, index), html`<gv-link class="${this.notSelected}" skeleton .vertical="${this.vertical}"></gv-link>`),
+          (route, index) =>
+            until(
+              this._getLink(route, index),
+              html`<gv-link class="${this.notSelected}" skeleton .vertical="${this.vertical}"></gv-link>`,
+            ),
         )}
-        </div>
-        `)
+          </div>
+        `);
       }
     }
     if (this._routes) {
@@ -243,14 +305,13 @@ export class GvNav extends LitElement {
         (route) => route,
         (route, index) => until(this._getLink(route, index), html`<gv-link skeleton .vertical="${this.vertical}"></gv-link>`),
       )}
-`)
+      `);
     }
 
     return html`<nav class="${classMap({ compact: this._compact, vertical: this.vertical })}">
-    ${itemsTemplates}
+      ${itemsTemplates}
     </nav>`;
   }
 }
 
 window.customElements.define('gv-nav', GvNav);
-

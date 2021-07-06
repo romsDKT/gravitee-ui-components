@@ -277,6 +277,7 @@ export class GvHeader extends withResizeObserver(ItemResource(LitElement)) {
         </div>
         ${!(this._error || this._empty) && this.canSubscribe
           ? html`<div class="actions">
+              Hello
               <gv-button primary @click="${this._onSubscribe}">${i18n('gv-header.subscribe')}</gv-button>
             </div>`
           : ``}

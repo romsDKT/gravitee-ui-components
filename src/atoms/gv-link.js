@@ -175,9 +175,18 @@ export class GvLink extends LitElement {
   }
 
   set title(value) {
+    const regex = /^\/(?<group>[a-zA-Z0-9]+)\/.*/g;
     Promise.resolve(value)
-      .then((title) => {
-        this._title = title;
+    .then((title) => {
+      if (title.toString().match(regex)) {
+        const {
+          groups: { group },
+        } = /^\/(?<group>[a-zA-Z0-9]+)\/.*/g.exec(title);
+          return this._title = title.split(`/${group}/`)[1];
+        } else {
+          this._title = title
+        }
+
       })
       .catch((e) => {});
   }

@@ -195,7 +195,7 @@ export class GvCardFull extends ItemResource(LitElement) {
       </div>
       <span class="${classMap({ skeleton: this._skeleton })}">
         <div class="infos">${this._renderMetricsWithRating()}</div>
-		${this._renderQualityGauge()}
+        ${this._renderQualityGauge()}
         <div class="labels">${this._renderLabels(true)}</div>
       </span>
     </div>`;

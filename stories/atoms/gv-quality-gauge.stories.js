@@ -37,16 +37,16 @@ const conf = {
 };
 
 const items = [
-  {percent: 10},
-  {percent: 20},
-  {percent: 30},
-  {percent: 40},
-  {percent: 50},
-  {percent: 60},
-  {percent: 70},
-  {percent: 80},
-  {percent: 90},
-  {percent: 100},
+  { percent: 10 },
+  { percent: 20 },
+  { percent: 30 },
+  { percent: 40 },
+  { percent: 50 },
+  { percent: 60 },
+  { percent: 70 },
+  { percent: 80 },
+  { percent: 90 },
+  { percent: 100 },
 ];
 
 export const basic = makeStory(conf, {

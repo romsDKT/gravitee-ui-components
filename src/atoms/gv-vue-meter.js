@@ -1,13 +1,28 @@
+/*
+ * Copyright (C) 2021 The Gravitee team (http://gravitee.io)
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { LitElement, html, css } from 'lit-element';
 
 export class GvVueMeter extends LitElement {
-  static get properties () {
+  static get properties() {
     return {
       levels: { type: Array },
     };
   }
 
-  _getColor (score) {
+  _getColor(score) {
     if (score < 50) return '#da1e37';
     if (score >= 50 && score < 60) return '#ff8800';
     if (score >= 60 && score < 75) return '#ffd500';
@@ -15,7 +30,7 @@ export class GvVueMeter extends LitElement {
     if (score === 100) return '#6B9B46';
   }
 
-  static get styles () {
+  static get styles() {
     return [
       // language=CSS
       css`
@@ -45,8 +60,8 @@ export class GvVueMeter extends LitElement {
           color: black;
           font-size: 10px;
         }
-        .level-container:nth-child(n+1){
-          border-right:0px;
+        .level-container:nth-child(n + 1) {
+          border-right: 0px;
         }
         .level-container:last-child {
           border-left: 0px;
@@ -59,7 +74,7 @@ export class GvVueMeter extends LitElement {
           color: black;
         }
         .target-border {
-          border: 3px dotted rgba(255,0,0,0.64);
+          border: 3px dotted rgba(255, 0, 0, 0.64);
           border-radius: 4px;
           height: 30px;
           position: relative;
@@ -75,7 +90,7 @@ export class GvVueMeter extends LitElement {
     ];
   }
 
-  render () {
+  render() {
     return html`
       <div class="container">
         Quality :
@@ -83,19 +98,13 @@ export class GvVueMeter extends LitElement {
           ${this.levels.map((level) =>
             level.targetLevel
               ? html`
-                  <div
-                    class="target-level-container"
-                    style="background-color: ${this._getColor(level.score)}"
-                  >
+                  <div class="target-level-container" style="background-color: ${this._getColor(level.score)}">
                     <strong> LEVEL ${level.level} </strong>
                     <div class="target-border"></div>
                   </div>
                 `
-              : html`<div
-                  class="level-container"
-                  style="background-color: ${this._getColor(level.score)}"
-                >
-                <strong> LEVEL ${level.level} </strong>
+              : html`<div class="level-container" style="background-color: ${this._getColor(level.score)}">
+                  <strong> LEVEL ${level.level} </strong>
                 </div>`,
           )}
         </div>

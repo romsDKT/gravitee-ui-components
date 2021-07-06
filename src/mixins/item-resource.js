@@ -119,8 +119,8 @@ export function ItemResource(ParentClass) {
 
     _renderQualityGauge() {
       if (this._item && !this._item.applicationType && this._item.categories) {
-        const qualityCategory = this._item.categories.find(c => c.indexOf('adm-quality-score-' !== -1));
-        let score = 0
+        const qualityCategory = this._item.categories.find((c) => c.indexOf('adm-quality-score-' !== -1));
+        let score = 0;
         switch (qualityCategory) {
           case 'adm-quality-score-1':
             score = 95;
@@ -145,6 +145,5 @@ export function ItemResource(ParentClass) {
       }
       return '';
     }
-
   };
 }
